@@ -1,1 +1,2 @@
 # calendar-helper
+## Getting Started
