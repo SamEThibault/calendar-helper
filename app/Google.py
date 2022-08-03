@@ -3,14 +3,12 @@
 	for the Helper class.
 """
 
-
 import pickle
 import os
 import datetime
 from collections import namedtuple
-from google_auth_oauthlib.flow import Flow, InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.auth.transport.requests import Request
 
 
@@ -22,7 +20,7 @@ def Create_Service(client_secret_file, api_name, api_version, *scopes, prefix=''
 	
 	cred = None
 	working_dir = os.getcwd()
-	token_dir = 'token files'
+	token_dir = 'token_files'
 	pickle_file = f'token_{API_SERVICE_NAME}_{API_VERSION}{prefix}.pickle'
 
 	### Check if token dir exists first, if not, create the folder
