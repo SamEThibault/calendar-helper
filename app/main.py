@@ -1,17 +1,11 @@
-# Script used to copy over SOLUS (Queen's University Student Center) Course schedule information over to a personal Google Calendar.
+# Script used to copy over SOLUS (Queen's University Student Center)
+# course schedule information over to a personal Google Calendar.
+
 import time
 import getpass
-from Google import Create_Service
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-
-CLIENT_SECRET_FILE = "./static/credentials.json"
-API_NAME = "calendar"
-API_VERSION = "v3"
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
-
-service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 driver = webdriver.Chrome(ChromeDriverManager().install())
 time.sleep(2)
@@ -31,7 +25,7 @@ while True:
         time.sleep(2)
 
         # check to see if an error was thrown, if so, try again
-        driver.find_element(By.ID, 'usernameError')
+        driver.find_element(By.ID, "usernameError")
         print("The email you've entered is incorrect.")
         emailField.clear()
     except:
@@ -52,12 +46,12 @@ while True:
         # check to see if we're at the right page, if so, break out of loop
         driver.find_element(By.ID, "idDiv_SAOTCAS_Title")
         break
-        
+
     except:
         # If authentication page does not show up, try pw again
         print("The password you've entered is incorrect.")
         driver.find_element(By.ID, "i0118").clear()
-        
+
 # assuming 2FA enabled (required), prompt user to accept request
 print("Please authenticate the login through the Authenticator")
 print("When you are finished, press enter...")
@@ -81,46 +75,12 @@ driver.find_element(By.ID, "GRID_TERM_SRC5$0_row_0").click()
 print("Fall courses found:")
 time.sleep(10)
 
-
-# btn = driver.find_element(By.ID, "GRID_TERM_SRC$0_row_0")
-# manageClasses = btn.click()
-# print(manageClasses)
-
-
-# Call the Calendar API
-# now = datetime.datetime.utcnow().isoformat() + 'Z'
-# print(now)
-# print('Getting the upcoming 10 events...')
-# events_result = service.events().list(calendarId='primary', timeMin=now,
-#                                               maxResults=10, singleEvents=True,
-#                                               orderBy='startTime').execute()
-# events = events_result.get('items', [])
-
-# if not events:
-#     print('No upcoming events found.')
-#     exit()
-
-# # Prints the start and name of the next 10 events
-# for event in events:
-#     start = event['start'].get('dateTime', event['start'].get('date'))
-#     print(start, event['summary'])
-
-######################################
-
-# post a new event to the Calendar:
-# event = {
-#   'summary': 'Google I/O 2015',
-#   'location': '800 Howard St., San Francisco, CA 94103',
-#   'description': 'A chance to hear more about Google\'s developer products.',
-#   'start': {
-#     'dateTime': '2022-08-04T09:00:00-07:00',
-#     'timeZone': 'America/Los_Angeles',
-#   },
-#   'end': {
-#     'dateTime': '2022-08-04T17:00:00-07:00',
-#     'timeZone': 'America/Los_Angeles',
-#   },
-# }
-
-# event = service.events().insert(calendarId='primary', body=event).execute()
-# print('Event created: %s' % (event.get('htmlLink')))
+# get courses and populate the object fields
+class Event:
+    def __init__(self, name, season, dayTimes, occurence):
+        self.name = name
+        self.season = season
+        self.dayTimes = dayTimes
+        self.numClasses = len(dayTimes)
+        self.occurence = occurence
+        # where dayTimes: [[day: Monday, time: 5pm, len: 1h], [day: ..., time: ..., len: ...]]
