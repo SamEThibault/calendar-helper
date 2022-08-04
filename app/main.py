@@ -1,24 +1,54 @@
 # Script used to copy over SOLUS (Queen's University Student Center) Course schedule information over to a personal Google Calendar.
+import time
+import getpass
 from Google import Create_Service
-import datetime
-import webbrowser
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 
-CLIENT_SECRET_FILE = './static/credentials.json'
-API_NAME = 'calendar'
-API_VERSION = 'v3'
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+CLIENT_SECRET_FILE = "./static/credentials.json"
+API_NAME = "calendar"
+API_VERSION = "v3"
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
-# Prompt user to login to SOLUS
-print("Once you are logged into your Queen's account, Type: \"ready\"")
-webbrowser.open("https://login.microsoftonline.com/")
+driver = webdriver.Chrome(ChromeDriverManager().install())
+time.sleep(2)
+# Logging in to MS Live account procedure
+# Need to do some assertions throughout the redirects to ensure that no errors have occured
+driver.get("https://portal.office.com")
+print("Enter your Queen's Email: ")
+email = input().lower()
 
-ans = input().lower()
-if ans is not "ready": exit()
+emailField = driver.find_element(By.ID, "i0116")
+emailField.send_keys(email)
+nextButton = driver.find_element(By.ID, "idSIButton9").click()
+
+print("Enter your password: ")
+password = getpass.getpass()
+driver.find_element(By.ID, "i0118").send_keys(password)
+del password
+driver.find_element(By.ID, "idSIButton9").click()
+
+print("Please authenticate the login through the Authenticator")
+time.sleep(15)
+driver.find_element(By.ID, "idSIButton9").click()
+time.sleep(2)
+
+print("You are now logged in.")
+###############
+
+# Now, navigate through SOLUS to find Fall/Winter semester lecture times
+driver.get(
+    "https://saself.ps.queensu.ca/psc/saself_21/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_MD_SP_FL.GBL"
+)
+time.sleep(2)
 
 
-
+# btn = driver.find_element(By.ID, "GRID_TERM_SRC$0_row_0")
+# manageClasses = btn.click()
+# print(manageClasses)
 
 
 # Call the Calendar API
