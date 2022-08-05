@@ -82,12 +82,15 @@ time.sleep(3)
 class Event:
     def __init__(self, name, day, startEnd, times):
         self.name = name
-        day = day.split(" ")[1].lower()
-        startEnd = startEnd.split(" - ")
-        startDate = startEnd[0].replace("/", "-")
-        endDate = startEnd[1].replace("/", "-")
+        self.day = day.split(" ")[1].lower()
+        self.startEnd = startEnd.split(" - ")
+        startDate = self.startEnd[0].replace("/", "-")
+        endDate = self.startEnd[1].replace("/", "-")
         startTime = times.split(" ")[1][:-2]
         endTime = times.split(" ")[3][:-2]
+
+        print("Start time: " + startTime)
+        print("End Time: " + endTime)
 
         # get the start and end AM/PM specification to ensure correct ISO formatting 
         startAmPm = times.split(" ")[1][len(startTime):]
@@ -96,26 +99,29 @@ class Event:
         adjustedStartTime = startTime
         adjustedEndTime = endTime
 
-        if startAmPm == "PM": 
+        if startAmPm == "PM" and startTime.split(":")[0] != "12": 
             originalHour = startTime.split(":")[0]
             newHour = str(int(originalHour) + 12)
             adjustedStartTime = startTime.replace(originalHour, newHour)
-        if endAmPm == "PM":
+        if endAmPm == "PM" and endTime.split(":")[0] != "12":
             originalHour = endTime.split(":")[0]
             newHour = str(int(originalHour) + 12)
-            adjustedEndTime = startTime.replace(originalHour, newHour)
+            adjustedEndTime = endTime.replace(originalHour, newHour)
+
+        print("Adjusted start time: " + adjustedStartTime)
+        print("Adjusted end time: " + adjustedEndTime)
 
         # need to adjust the startDate with the day of week for the course
         startDay = startDate.split("-")[2]
-        if day == "monday":
+        if self.day == "monday":
             dayOffset = 6
-        elif day == "tuesday":
+        elif self.day == "tuesday":
             dayOffset = 0
-        elif day == "wednesday":
+        elif self.day == "wednesday":
             dayOffset = 1
-        elif day == "thursday":
+        elif self.day == "thursday":
             dayOffset = 2
-        elif day == "friday":
+        elif self.day == "friday":
             dayOffset = 3
 
         startDay = str(int(startDay) + dayOffset)
@@ -128,9 +134,9 @@ class Event:
     def printCourse(self):
         print("-------------- Course Information ------------------")
         print("Name: " + self.name)
-        print("Start Day: " + day)
+        print("Start Day: " + self.day)
         print("Start Date and Time: " + self.startDateTime)
-        print("End Data and Time: " + self.endDateTime)
+        print("End Date and Time: " + self.endDateTime)
         print("-------------- END ------------------")
 
 
