@@ -6,7 +6,6 @@ import getpass
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-from datetime import datetime
 
 from calendarAPI import callAPI
 
@@ -78,27 +77,27 @@ driver.find_element(By.ID, "GRID_TERM_SRC5$0_row_0").click()
 print("Fall courses found:")
 time.sleep(3)
 
-# get courses and populate the object fields
+# this is a blueprint for a single Google API event request.
 class Event:
+    # event name, specific start day, both start and end dates, and start and end times must be provided
     def __init__(self, name, day, startEnd, times):
-        self.name = name
-        self.day = day.split(" ")[1].lower()
-        self.startEnd = startEnd.split(" - ")
-        startDate = self.startEnd[0].replace("/", "-")
-        endDate = self.startEnd[1].replace("/", "-")
-        startTime = times.split(" ")[1][:-2]
-        endTime = times.split(" ")[3][:-2]
-
-        print("Start time: " + startTime)
-        print("End Time: " + endTime)
+        self.name = name                                    # this is just the course name
+        self.day = day.split(" ")[1].lower()                # lowercase start day (monday, tuesday...)
+        self.startEnd = startEnd.split(" - ")               # start and end dates ["2020/09/05", "..."]
+        startDate = self.startEnd[0].replace("/", "-")      # start/end date ISO format: "2020-09-05"
+        endDate = self.startEnd[1].replace("/", "-")        
+        startTime = times.split(" ")[1][:-2]                # start/end time (no AM/PM): "11:00" 
+        endTime = times.split(" ")[3][:-2]                  
 
         # get the start and end AM/PM specification to ensure correct ISO formatting 
         startAmPm = times.split(" ")[1][len(startTime):]
         endAmPm = times.split(" ")[3][len(endTime):]
 
-        adjustedStartTime = startTime
+        # the adjusted variables are used in the final formatting step
+        adjustedStartTime = startTime  
         adjustedEndTime = endTime
 
+        # if the start/end time is in afternoon and is not 12, add 12 hours to it and update adjusted variables
         if startAmPm == "PM" and startTime.split(":")[0] != "12": 
             originalHour = startTime.split(":")[0]
             newHour = str(int(originalHour) + 12)
@@ -108,11 +107,9 @@ class Event:
             newHour = str(int(originalHour) + 12)
             adjustedEndTime = endTime.replace(originalHour, newHour)
 
-        print("Adjusted start time: " + adjustedStartTime)
-        print("Adjusted end time: " + adjustedEndTime)
-
         # need to adjust the startDate with the day of week for the course
-        startDay = startDate.split("-")[2]
+        startDay = startDate.split("-")[2]  # get the day
+        # offset determined by a start day of Tuesday, as per a usual academic calendar
         if self.day == "monday":
             dayOffset = 6
         elif self.day == "tuesday":
@@ -124,13 +121,15 @@ class Event:
         elif self.day == "friday":
             dayOffset = 3
 
+        # add offset and update original date
         startDay = str(int(startDay) + dayOffset)
         adjustedStartDate = startDate.replace(startDate.split("-")[2], startDay)
 
-        # ISO Date Format needed for API request
+        # ISO Date Format needed for API request (EST)
         self.startDateTime = adjustedStartDate + "T" + adjustedStartTime + ":00-04:00"
         self.endDateTime = adjustedStartDate + "T" + adjustedEndTime + ":00-04:00"
 
+    # print out object fields
     def printCourse(self):
         print("-------------- Course Information ------------------")
         print("Name: " + self.name)
